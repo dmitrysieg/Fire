@@ -89,10 +89,10 @@ public class FireRenderer implements GLSurfaceView.Renderer {
 
     private void SetupImage() {
         uvs = new float[] {
-                0.0f, 0.0f,
-                0.0f, 1.0f,
-                1.0f, 1.0f,
-                1.0f, 0.0f
+                0.0f + 0.5f / 32.0f,                    0.0f + 0.5f / 32.0f,
+                0.0f + 0.5f / 32.0f,                    0.0f + 0.5f / 32.0f + 31.0f / 32.0f,
+                0.0f + 0.5f / 32.0f + 31.0f / 32.0f,    0.0f + 0.5f / 32.0f + 31.0f / 32.0f,
+                0.0f + 0.5f / 32.0f + 31.0f / 32.0f,    0.0f + 0.5f / 32.0f
         };
 
         ByteBuffer bb = ByteBuffer.allocateDirect(uvs.length * 4);
@@ -104,7 +104,7 @@ public class FireRenderer implements GLSurfaceView.Renderer {
         int[] texturenames = new int[1];
         GLES20.glGenTextures(1, texturenames, 0);
 
-        int id = context.getResources().getIdentifier("drawable/plane2", null, context.getPackageName());
+        int id = context.getResources().getIdentifier("drawable/plane", null, context.getPackageName());
 
         Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), id);
 
@@ -116,8 +116,8 @@ public class FireRenderer implements GLSurfaceView.Renderer {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
 
         // Set wrapping mode
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GL_REPEAT);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GL_REPEAT);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         // Load the bitmap into the bound texture.
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
