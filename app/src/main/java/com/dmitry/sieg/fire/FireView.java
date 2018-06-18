@@ -12,7 +12,7 @@ public class FireView extends GLSurfaceView {
 
         setEGLContextClientVersion(VERSION_OPENGL_ES_2_0);
 
-        Renderer renderer = new FireRenderer();
+        Renderer renderer = new FireRenderer(context);
         setRenderer(renderer);
     }
 }

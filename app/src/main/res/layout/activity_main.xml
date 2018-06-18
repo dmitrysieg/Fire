@@ -7,16 +7,10 @@
     android:background="@color/colorPrimary"
     tools:context=".MainActivity">
 
-    <pl.droidsonroids.gif.GifImageView
+    <com.dmitry.sieg.fire.FireView
         android:id="@+id/gifview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitEnd"
-        android:background="@color/colorPrimary"
-        android:src="@drawable/fire"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
     />
 
 </android.support.constraint.ConstraintLayout>
