@@ -68,10 +68,10 @@ public class FireRenderer implements GLSurfaceView.Renderer {
 
     private float[] createVertices() {
         return new float[] {
+                sqrSize,    sqrSize,    0.0f,
+                sqrSize,    0.0f,       0.0f,
                 0.0f,       0.0f,       0.0f,
                 0.0f,       sqrSize,    0.0f,
-                sqrSize,    sqrSize,    0.0f,
-                sqrSize,    0.0f,       0.0f
         };
     }
 

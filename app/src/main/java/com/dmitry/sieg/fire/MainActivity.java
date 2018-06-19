@@ -3,7 +3,6 @@ package com.dmitry.sieg.fire;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
-import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.os.Bundle;
@@ -12,17 +11,37 @@ import android.view.View;
 
 public class MainActivity extends Activity {
 
-    private GLSurfaceView mGLView;
+    private FireCanvasView view;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mGLView = new FireView(this);
-        setContentView(mGLView);
+        view = new FireCanvasView(this);
+        setContentView(view);
 
-        mGLView.setOnTouchListener(new FireTouchListener(this));
+        view.setOnTouchListener(new FireTouchListener(this));
+
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long t = System.currentTimeMillis();
+                try {
+                    while (true) {
+                        final long ct = System.currentTimeMillis();
+                        if (ct - t > 1000 / 24) {
+                            t = ct;
+                            view.postInvalidate();
+                        }
+                        Thread.sleep(1);
+                    }
+                } catch (InterruptedException e) {
+                    // exit
+                }
+            }
+        });
+        thread.start();
     }
 
     @Override
