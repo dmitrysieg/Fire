@@ -3,10 +3,14 @@ package com.dmitry.sieg.fire;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.util.Base64;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -37,6 +41,8 @@ public class FireRenderer implements GLSurfaceView.Renderer {
     private float sqrSize = 100.0f;
 
     private Context context;
+
+    private static final String IMAGE_PLANE = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG9SURBVEhLtZRhdsMwCINz9B1tN8sEwjLGJG3Tt+95FLBASX7sOP+ZS4OfQdRP6Q3yXtqAqDfub6tBUefrdoua7S1YDIro16GCEQLB0tsGlOpnGoO8ETF75PldTI/jYBVYga6Y3TSmnIKcgyxGszdgAXRZxkB2koxNRsqqAVqRjjGo8xhLgY5kSBS5HVwasK3Lq/m9zzySdTvo34DRBtbvA1gKdZg0BvbnXW4EU+2ROWOBU4hM2KyfKH4cKgSvuAKlmSckwAp1QG9Asg1ngEobxe2I6Fjm2xEpA96bLAWBQnsntmxuZ5RHaLbtoDEANj/gjHXwd+GRlYWlBQkOc99g5FJ7c5QHIsWZ2cI91nBTtFb8JvayLB6UCVo2Bu94INd2xt0jDIruxgO3PLiVnnE/ptcb+K91Ge9OQo8STzMO1uJVEaHxC8dTWwEkLYcDUroLK2NobDsNrOnF/Ppgzvthf7+dcX2VYmDQoByx95voLzKPfZzo2499IDiusAmiXvG5Nc4HDjC7GLwPx5btjON/n3hioCe13JN7D/CZge8xSinYz3xmUOALRXHBc4P8uW746g1oAKLu+MrgNef5B199EBMNu5y/AAAAAElFTkSuQmCC";
 
     FireRenderer(Context context) {
         this.context = context;
@@ -89,10 +95,10 @@ public class FireRenderer implements GLSurfaceView.Renderer {
 
     private void SetupImage() {
         uvs = new float[] {
-                0.0f + 0.5f / 32.0f,                    0.0f + 0.5f / 32.0f,
-                0.0f + 0.5f / 32.0f,                    0.0f + 0.5f / 32.0f + 31.0f / 32.0f,
-                0.0f + 0.5f / 32.0f + 31.0f / 32.0f,    0.0f + 0.5f / 32.0f + 31.0f / 32.0f,
-                0.0f + 0.5f / 32.0f + 31.0f / 32.0f,    0.0f + 0.5f / 32.0f
+                0.0f,   0.0f,
+                0.0f,   1.0f,
+                1.0f,   1.0f,
+                1.0f,   0.0f
         };
 
         ByteBuffer bb = ByteBuffer.allocateDirect(uvs.length * 4);
@@ -106,23 +112,26 @@ public class FireRenderer implements GLSurfaceView.Renderer {
 
         int id = context.getResources().getIdentifier("drawable/plane", null, context.getPackageName());
 
-        Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), id);
+        //Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), id);
+
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+        int w = 32;
+        int h = 32;
+
+        byte[] image_bytes = Base64.decode(IMAGE_PLANE, Base64.DEFAULT);
+        Bitmap bmp = BitmapFactory.decodeByteArray(image_bytes, 0, image_bytes.length);
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texturenames[0]);
 
-        // Set filtering
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
 
-        // Set wrapping mode
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        // Load the bitmap into the bound texture.
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
 
-        // We are done using the bitmap so we should recycle it.
         bmp.recycle();
     }
 
