@@ -11,6 +11,8 @@ import android.view.View;
 
 public class MainActivity extends Activity {
 
+    private int FPS = 13;
+
     private FireCanvasView view;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -30,7 +32,7 @@ public class MainActivity extends Activity {
                 try {
                     while (true) {
                         final long ct = System.currentTimeMillis();
-                        if (ct - t > 1000 / 24) {
+                        if ((ct - t) * FPS > 1000) {
                             t = ct;
                             view.postInvalidate();
                         }
