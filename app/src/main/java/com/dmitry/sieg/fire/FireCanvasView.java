@@ -12,12 +12,16 @@ import android.view.View;
 
 public class FireCanvasView extends View {
 
-    private static final int S_WIDTH = 32;
-    private static final int S_HEIGHT = 32;
+    private static final int BASE_S_WIDTH = 32;
+    private static final int BASE_S_HEIGHT = 32;
+
+    private static int s_width = 32;
+    private static int s_height = 32;
+    private static float s_block_size;
     private static final int I_HEIGHT = 1; // height of noise initiator;
 
     private Bitmap[] bitmap = new Bitmap[2];
-    private int[][][] fireIndex = new int[2][S_HEIGHT + I_HEIGHT][S_WIDTH];
+    private int[][][] fireIndex;
     private Matrix matrix;
     private Paint paint;
     private int b_index;
@@ -25,24 +29,33 @@ public class FireCanvasView extends View {
     public FireCanvasView(Context context) {
         super(context);
 
+        final DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        s_block_size = Math.min(
+                ((float) dm.widthPixels) / ((float) BASE_S_WIDTH),
+                ((float) dm.heightPixels) / ((float) BASE_S_HEIGHT)
+        );
+
+        // System.out.println(s_block_size);
+        s_width = (int) Math.floor( ((float) dm.widthPixels) / s_block_size);
+        s_height = (int) Math.floor( ((float) dm.heightPixels) / s_block_size);
+
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        bitmap[0] = Bitmap.createBitmap(S_WIDTH, S_HEIGHT + I_HEIGHT, conf);
-        bitmap[1] = Bitmap.createBitmap(S_WIDTH, S_HEIGHT  + I_HEIGHT, conf);
+        bitmap[0] = Bitmap.createBitmap(s_width, s_height + I_HEIGHT, conf);
+        bitmap[1] = Bitmap.createBitmap(s_width, s_height + I_HEIGHT, conf);
         b_index = 0;
 
+        fireIndex = new int[2][s_height + I_HEIGHT][s_width];
         init2DArray(fireIndex[0]);
         init2DArray(fireIndex[1]);
+        initiateNoise(fireIndex[b_index]);
 
         matrix = new Matrix();
-        final DisplayMetrics dm = context.getResources().getDisplayMetrics();
-        matrix.setRectToRect(new RectF(0.0f, 0.0f, (float) S_WIDTH, (float) S_HEIGHT),
+        matrix.setRectToRect(new RectF(0.0f, 0.0f, (float) s_width, (float) s_height),
                 new RectF(0.0f, 0.0f, (float) dm.widthPixels, (float) dm.heightPixels),
                 Matrix.ScaleToFit.END);
 
         paint = new Paint();
         paint.setDither(false);
-
-        initiateNoise(fireIndex[b_index]);
     }
 
     @Override
@@ -64,12 +77,12 @@ public class FireCanvasView extends View {
 
     private void initiateNoise(final int[][] newFireIndex) {
         for (int y = 0; y < I_HEIGHT; y++) {
-            for (int x = 0; x < S_WIDTH; x++) {
+            for (int x = 0; x < s_width; x++) {
                 final double r = Math.random();
                 if (r > 0.5 && r < 0.8) {
-                    newFireIndex[S_HEIGHT + y][x] = (int)(255.0f * r);
+                    newFireIndex[s_height + y][x] = (int)(255.0f * r);
                 } else {
-                    newFireIndex[S_HEIGHT + y][x] = 0;
+                    newFireIndex[s_height + y][x] = 0;
                 }
             }
         }
@@ -78,8 +91,8 @@ public class FireCanvasView extends View {
     private void processFire(final Bitmap newBitmap,
                              final int[][] oldFireIndex,
                              final int[][] newFireIndex) {
-        for (int y = S_HEIGHT - 1; y >=0; y--) {
-            for (int x = 0; x < S_WIDTH; x++) {
+        for (int y = s_height - 1; y >=0; y--) {
+            for (int x = 0; x < s_width; x++) {
 
                 int sum = 0;
 
@@ -90,14 +103,14 @@ public class FireCanvasView extends View {
                 //  +
                 //
                 // and dividing it by the value slightly > than 4.
-                if (y < S_HEIGHT + I_HEIGHT - 2) {
+                if (y < s_height + I_HEIGHT - 2) {
                     sum += oldFireIndex[y + 2][x];
                 }
-                if (y < S_HEIGHT + I_HEIGHT - 1) {
+                if (y < s_height + I_HEIGHT - 1) {
                     if (x > 0) {
                         sum += oldFireIndex[y + 1][x - 1];
                     }
-                    if (x < S_WIDTH - 1) {
+                    if (x < s_width - 1) {
                         sum += oldFireIndex[y + 1][x + 1];
                     }
                     sum += oldFireIndex[y + 1][x];
@@ -119,8 +132,8 @@ public class FireCanvasView extends View {
     }
 
     private void init2DArray(final int arr[][]) {
-        for (int i = 0; i < S_HEIGHT; i++) {
-            for (int j = 0; j < S_WIDTH; j++) {
+        for (int i = 0; i < s_height; i++) {
+            for (int j = 0; j < s_width; j++) {
                 arr[i][j] = 0;
             }
         }
