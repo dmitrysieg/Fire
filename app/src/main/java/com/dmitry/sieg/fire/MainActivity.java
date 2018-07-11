@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -44,6 +45,16 @@ public class MainActivity extends Activity {
             }
         });
         thread.start();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            view.incTemperature(10);
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            view.decTemperature(10);
+        }
+        return true;
     }
 
     @Override

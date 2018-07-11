@@ -10,10 +10,15 @@ import android.graphics.RectF;
 import android.util.DisplayMetrics;
 import android.view.View;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class FireCanvasView extends View {
 
     private static final int BASE_S_WIDTH = 32;
     private static final int BASE_S_HEIGHT = 32;
+
+    private static final float random_lower = 0.5f;
+    private static final float random_upper = 0.8f;
 
     private static int s_width = 32;
     private static int s_height = 32;
@@ -25,6 +30,8 @@ public class FireCanvasView extends View {
     private Matrix matrix;
     private Paint paint;
     private int b_index;
+
+    private AtomicInteger temperature = new AtomicInteger(255);
 
     public FireCanvasView(Context context) {
         super(context);
@@ -58,6 +65,14 @@ public class FireCanvasView extends View {
         paint.setDither(false);
     }
 
+    public void incTemperature(final int delta) {
+        temperature.addAndGet(delta);
+    }
+
+    public void decTemperature(final int delta) {
+        temperature.addAndGet(-delta);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
 
@@ -79,8 +94,9 @@ public class FireCanvasView extends View {
         for (int y = 0; y < I_HEIGHT; y++) {
             for (int x = 0; x < s_width; x++) {
                 final double r = Math.random();
-                if (r > 0.5 && r < 0.8) {
-                    newFireIndex[s_height + y][x] = (int)(255.0f * r);
+                if (r > random_lower && r < random_upper) {
+                    final double normal = (r - random_lower) / (random_upper - random_lower);
+                    newFireIndex[s_height + y][x] = (int)(temperature.get() * normal);
                 } else {
                     newFireIndex[s_height + y][x] = 0;
                 }
@@ -124,10 +140,11 @@ public class FireCanvasView extends View {
     }
 
     /**
-     * index = [0, 255].
+     * index = [0, inf].
      */
     private int indexToColor(final int index) {
-        final float nindex = ((float) index) / 256.0f;
+        final int saturatedIndex = index <= 255 ? index : 255;
+        final float nindex = ((float) saturatedIndex) / 256.0f;
         return Color.HSVToColor(new float[]{360.0f / 3.0f * nindex, 1.0f, Math.min(1.0f, nindex * 2.0f)});
     }
 
