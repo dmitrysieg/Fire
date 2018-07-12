@@ -145,7 +145,7 @@ public class FireCanvasView extends View {
     private int indexToColor(final int index) {
         final int saturatedIndex = index <= 255 ? index : 255;
         final float nindex = ((float) saturatedIndex) / 256.0f;
-        return Color.HSVToColor(new float[]{360.0f / 3.0f * nindex, 1.0f, Math.min(1.0f, nindex * 2.0f)});
+        return Color.HSVToColor(new float[]{180.0f / 3.0f * nindex, nindex < 0.5f ? 1.0f : 1.0f - (nindex - 0.5f) * 2.0f, Math.min(1.0f, nindex * 2.0f)});
     }
 
     private void init2DArray(final int arr[][]) {
